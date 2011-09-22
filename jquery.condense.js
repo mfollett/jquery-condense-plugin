@@ -53,55 +53,55 @@
 	   var $this = $(this);
 
       // support metadata plugin (v2.0)
-	    var o = $.metadata ? $.extend({}, opts, $this.metadata()) : opts; // build element specific options
+	    var options = $.metadata ? $.extend({}, opts, $this.metadata()) : opts; // build element specific options
      
       debug('Condensing ['+$this.text().length+']: '+$this.text());
 
       $this.wrap('<span class="condensedParent"></span>');
       var $par = $this.parent();
 
-      if(! o.eventProxy) {
-        o.eventProxy = $par;
+      if(! options.eventProxy) {
+        options.eventProxy = $par;
       }
       
-      var clone = cloneCondensed($this,o);
+      var clone = cloneCondensed($this,options);
 
       if (clone){ 
 
-        clone.addClass(o.condensedClass);
-        $this.addClass(o.expandedClass);
+        clone.addClass(options.condensedClass);
+        $this.addClass(options.expandedClass);
 
         // id attribute switch.  make sure that the visible elem keeps the original id (if set).
         if( $this.attr('id') ) {
             $this.attr('id','condensed_'+$this.attr('id'));
         }
 
-        var controlMore = " <span class='condense_control condense_control_more' style='cursor:pointer;'>"+o.moreText+"</span>";
-        var controlLess = " <span class='condense_control condense_control_less' style='cursor:pointer;'>"+o.lessText+"</span>";
-        clone.append(o.ellipsis + controlMore);
+        var controlMore = " <span class='condense_control condense_control_more' style='cursor:pointer;'>"+options.moreText+"</span>";
+        var controlLess = " <span class='condense_control condense_control_less' style='cursor:pointer;'>"+options.lessText+"</span>";
+        clone.append(options.ellipsis + controlMore);
         $par.append(clone);
         $this.append(controlLess).hide();
 
         $('.condense_control_more',clone).click(function(){
           debug('moreControl clicked.');
-          o.eventProxy.trigger(o.moreEvent);
+          options.eventProxy.trigger(options.moreEvent);
         });
 
         $('.condense_control_less',$this).click(function(){
           debug('lessControl clicked.');
-          o.eventProxy.trigger(o.lessEvent);
+          options.eventProxy.trigger(options.lessEvent);
         });
 
         var isExpanded = false;
-        o.eventProxy.bind(o.lessEvent, function() {
+        options.eventProxy.bind(options.lessEvent, function() {
           if(isExpanded) {
-            triggerCondense($par,o);
+            triggerCondense($par,options);
             isExpanded = false;
           }
         });
-        o.eventProxy.bind(o.moreEvent,   function() {
+        options.eventProxy.bind(options.moreEvent,   function() {
           if(! isExpanded) {
-            triggerExpand($par,o);
+            triggerExpand($par,options);
             isExpanded = true;
           }
         });
