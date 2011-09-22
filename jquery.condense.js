@@ -41,73 +41,96 @@
     
     var opts = $.extend({}, $.fn.condense.defaults, options); // build main options before element iteration
 
-    if($.metadata) {
-        debug('metadata plugin detected', opts);
-    }
-    else {
-        debug('metadata plugin not present', opts);
-    }
-
     // iterate each matched element
     return this.each(function() {
 	   var $this = $(this);
 
-      // support metadata plugin (v2.0)
-	    var options = $.metadata ? $.extend({}, opts, $this.metadata()) : opts; // build element specific options
+      var options = buildOptions(opts);
      
       debug('Condensing ['+$this.text().length+']: '+$this.text());
 
-      $this.wrap('<span class="condensedParent"></span>');
-      var $par = $this.parent();
+      var $par = buildParent($this);
 
-      if(! options.eventProxy) {
-        options.eventProxy = $par;
-      }
-      
+      guaranteeEventProxy(options, $par);
+
       var clone = cloneCondensed($this,options);
 
       if (clone){ 
 
-        clone.addClass(options.condensedClass);
-        $this.addClass(options.expandedClass);
-
+        attachCustomClasses(options, clone, $this);
         // id attribute switch.  make sure that the visible elem keeps the original id (if set).
         if( $this.attr('id') ) {
             $this.attr('id','condensed_'+$this.attr('id'));
         }
-
-        var controlMore = " <span class='condense_control condense_control_more' style='cursor:pointer;'>"+options.moreText+"</span>";
-        var controlLess = " <span class='condense_control condense_control_less' style='cursor:pointer;'>"+options.lessText+"</span>";
-        clone.append(options.ellipsis + controlMore);
         $par.append(clone);
-        $this.append(controlLess).hide();
 
-        $('.condense_control_more',clone).click(function(){
+        addControls(options, clone, $this);
+        bindToClicks(options, clone, $this);
+        bindToCustomEvents(options, $par);
+      }
+    });
+  }
+
+  function buildParent($this) {
+      $this.wrap('<span class="condensedParent"></span>');
+      return $this.parent();
+  }
+
+  function buildOptions(options) {
+    // support metadata plugin (v2.0)
+    if($.metadata) {
+        debug('metadata plugin detected', options);
+        return $.extend({}, options, $this.metadata()) 
+    }
+    debug('metadata plugin not present', options);
+    return options;
+  }
+
+  function guaranteeEventProxy(options, $par) {
+      if(! options.eventProxy) {
+        options.eventProxy = $par;
+      }
+  }
+
+  function bindToClicks(options, $condensed, $expanded) {
+      $('.condense_control_more',$condensed).click(function(){
           debug('moreControl clicked.');
           options.eventProxy.trigger(options.moreEvent);
-        });
+      });
 
-        $('.condense_control_less',$this).click(function(){
+      $('.condense_control_less',$expanded).click(function(){
           debug('lessControl clicked.');
           options.eventProxy.trigger(options.lessEvent);
-        });
+      });
+  }
 
-        var isExpanded = false;
-        options.eventProxy.bind(options.lessEvent, function() {
+  function attachCustomClasses(options, $condensed, $expanded) {
+      $condensed.addClass(options.condensedClass);
+      $expanded.addClass(options.expandedClass);
+  }
+
+  function bindToCustomEvents(options, $parent) {
+      var isExpanded = false;
+      options.eventProxy.bind(options.lessEvent, function() {
           if(isExpanded) {
-            triggerCondense($par,options);
-            isExpanded = false;
+              triggerCondense($parent,options);
+              isExpanded = false;
           }
-        });
-        options.eventProxy.bind(options.moreEvent,   function() {
+      });
+      options.eventProxy.bind(options.moreEvent,   function() {
           if(! isExpanded) {
-            triggerExpand($par,options);
-            isExpanded = true;
+              triggerExpand($parent,options);
+              isExpanded = true;
           }
-        });
-      }
-	  });
-  };
+      });
+  }
+
+  function addControls(options, $condensed, $expanded) {
+      var controlMore = " <span class='condense_control condense_control_more' style='cursor:pointer;'>"+options.moreText+"</span>";
+      var controlLess = " <span class='condense_control condense_control_less' style='cursor:pointer;'>"+options.lessText+"</span>";
+      $condensed.append(options.ellipsis + controlMore);
+      $expanded.append(controlLess).hide();
+  }
 
   function cloneCondensed(elem, opts){
     // Try to clone and condense the element.  if not possible because of the length/minTrail options, return false.
