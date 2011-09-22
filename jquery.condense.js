@@ -49,10 +49,14 @@
       // support metadata plugin (v2.0)
 	    var o = $.metadata ? $.extend({}, opts, $this.metadata()) : opts; // build element specific options
      
-      debug('Condensing ['+$this.text().length+']: '+$this.text(), opts);
+      debug('Condensing ['+$this.text().length+']: '+$this.text());
 
       $this.wrap('<span class="condensedParent"></span>');
       var $par = $this.parent();
+
+      if(! o.eventProxy) {
+        o.eventProxy = $par;
+      }
       
       var clone = cloneCondensed($this,o);
 
@@ -71,23 +75,23 @@
         $this.append(controlLess).hide();
 
         $('.condense_control_more',clone).click(function(){
-          debug('moreControl clicked.', opts);
-          $par.trigger(o.moreEvent);
+          debug('moreControl clicked.');
+          o.eventProxy.trigger(o.moreEvent);
         });
 
         $('.condense_control_less',$this).click(function(){
-          debug('lessControl clicked.', opts);
-          $par.trigger(o.lessEvent);
+          debug('lessControl clicked.');
+          o.eventProxy.trigger(o.lessEvent);
         });
 
         var isExpanded = false;
-        $par.bind(o.lessEvent, function() {
+        o.eventProxy.bind(o.lessEvent, function() {
           if(isExpanded) {
             triggerCondense($par,o)
             isExpanded = false;
           }
         });
-        $par.bind(o.moreEvent,   function() {
+        o.eventProxy.bind(o.moreEvent,   function() {
           if(! isExpanded) {
             triggerExpand($par,o)
             isExpanded = true;
