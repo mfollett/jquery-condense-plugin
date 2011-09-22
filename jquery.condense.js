@@ -1,3 +1,4 @@
+/*jsl:option explicit*/
 /**
 * Condense 0.1 - Condense and expand text heavy elements
 *
@@ -44,7 +45,7 @@
 
     // iterate each matched element
     return this.each(function() {
-	    $this = $(this);
+	   var $this = $(this);
 
       // support metadata plugin (v2.0)
 	    var o = $.metadata ? $.extend({}, opts, $this.metadata()) : opts; // build element specific options
@@ -87,13 +88,13 @@
         var isExpanded = false;
         o.eventProxy.bind(o.lessEvent, function() {
           if(isExpanded) {
-            triggerCondense($par,o)
+            triggerCondense($par,o);
             isExpanded = false;
           }
         });
         o.eventProxy.bind(o.moreEvent,   function() {
           if(! isExpanded) {
-            triggerExpand($par,o)
+            triggerExpand($par,o);
             isExpanded = true;
           }
         });
@@ -144,7 +145,7 @@
     var foundDelim = false;
     var loc = startpos;    
     do {
-      var loc = html.indexOf(delim, loc);
+      loc = html.indexOf(delim, loc);
       if (loc < 0){
         debug ("No delimiter found.");
         return html.length;
@@ -209,7 +210,7 @@
    */
   function debug(str, opts) {
       if (opts && opts.debug && window.console && window.console.log){window.console.log(str);}
-  };
+  }
 
 
   // plugin defaults
