@@ -41,7 +41,12 @@
     
     var opts = $.extend({}, $.fn.condense.defaults, options); // build main options before element iteration
 
-    $.metadata ? debug('metadata plugin detected', opts) : debug('metadata plugin not present', opts);//detect the metadata plugin?
+    if($.metadata) {
+        debug('metadata plugin detected', opts);
+    }
+    else {
+        debug('metadata plugin not present', opts);
+    }
 
     // iterate each matched element
     return this.each(function() {
@@ -67,7 +72,9 @@
         $this.addClass(o.expandedClass);
 
         // id attribute switch.  make sure that the visible elem keeps the original id (if set).
-        $this.attr('id') ? $this.attr('id','condensed_'+$this.attr('id')) : false;
+        if( $this.attr('id') ) {
+            $this.attr('id','condensed_'+$this.attr('id'));
+        }
 
         var controlMore = " <span class='condense_control condense_control_more' style='cursor:pointer;'>"+o.moreText+"</span>";
         var controlLess = " <span class='condense_control condense_control_less' style='cursor:pointer;'>"+o.lessText+"</span>";
@@ -116,18 +123,19 @@
     var delim = opts.delim; 
     var clone = elem.clone();
     var delta = 0;
+    var cloneTextLength;
 
     do {
       // find the location of the next potential break-point.
       var loc = findDelimiterLocation(fullbody, opts.delim, (opts.condensedLength + delta));
       //set the html of the clone to the substring html of the original
       clone.html($.trim(fullbody.substring(0,(loc+1))));
-      var cloneTextLength = clone.text().length;
+      cloneTextLength = clone.text().length;
       var cloneHtmlLength = clone.html().length;
       delta = clone.html().length - cloneTextLength; 
       debug ("condensing... [html-length:"+cloneHtmlLength+" text-length:"+cloneTextLength+" delta: "+delta+" break-point: "+loc+"]");
     //is the length of the clone text long enough?
-    }while(delta && clone.text().length < opts.condensedLength )
+    }while(delta && clone.text().length < opts.condensedLength );
 
     //  after skipping ahead to the delimiter, do we still have enough trailing text?
     if ((fulltext.length - cloneTextLength) < opts.minTrail){
@@ -156,7 +164,7 @@
         loc++;
         foundDelim = false;
       }
-    }while(!foundDelim)
+    }while(!foundDelim);
     debug ("Delimiter found in html at: "+loc);
     return loc;
   }
