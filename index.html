@@ -65,6 +65,13 @@
 
           //example 6: condense a li element with metadata.
           $('#example6').condense();
+
+          $('#example7').condense(
+           {
+                pickCondenser: function(methods, $elem, options) { return methods['simpleParagraphCondenser']; },
+                condensedLength: 95
+           }
+          );
        });
 
 
@@ -147,6 +154,15 @@
         <strong>Note:</strong>  The li used in example 5 is demonstrating support for the metadata plugin as well.
       </li>
     </ul>
+  <h3>Example 7:</h3>
+  <span id="example7">
+    <p>
+    This is a paragraph that contains some text, the text is shorter than the truncation point.
+    </p>
+    <p>
+    This is another paragraph that contains some text.
+    </p>
+  </span>
   </body>
 
 
